@@ -2,33 +2,34 @@
 # 1. GLOBAL OPTIONS & SNIPPETS
 # ---------------------------------------------------------
 
-# Global options
 {
-	admin off
-	persist_config off
-	auto_https off
-	log {
-		format json
-	}
-	servers {
-		trusted_proxies static private_ranges
-	}
+    admin off
+    persist_config off
+    auto_https off
+
+    log {
+        format json
+    }
+
+    servers {
+        trusted_proxies static private_ranges
+    }
 }
 
 # Snippet: Load Balancing Settings
 (lb_settings) {
-	lb_policy round_robin
-	lb_retries 100
-	lb_try_duration 10s
-	lb_try_interval 250ms
+    lb_policy round_robin
+    lb_retries 100
+    lb_try_duration 10s
+    lb_try_interval 250ms
 }
 
 # Snippet: Passive Health Checks
 (passive_health_checks) {
-	fail_duration 60s
-	max_fails 300
-	unhealthy_latency 5s
-	unhealthy_request_count 200
+    fail_duration 60s
+    max_fails 300
+    unhealthy_latency 5s
+    unhealthy_request_count 200
 }
 
 # ---------------------------------------------------------
@@ -36,48 +37,130 @@
 # ---------------------------------------------------------
 
 :{$PORT} {
-	log {
-		format json
-	}
+    log {
+        format json
+    }
 
-	# --- RULE 1: API (Unprotected) ---
-	# Any request starting with /api/ goes straight to the backend.
-	# NO Basic Auth here.
-	handle_path {$BACKEND_PATH:/api}/* {
-		reverse_proxy {
-			dynamic a {
-				name {$BACKEND_DOMAIN}
-				port {$BACKEND_PORT}
-				refresh 1s
-				dial_timeout 30s
-				versions ipv4 ipv6
-			}
-			import lb_settings
-			import passive_health_checks
-			header_up Host {upstream_hostport}
-		}
-	}
+    route {
 
-	# --- RULE 2: Frontend SPA (Protected) ---
-	# Catch-all for everything else (/, index.html, .js, .css).
-	# REQUIRES Basic Auth (password).
-	handle {
-		basicauth {
-			# Remember: variable BASIC_AUTH_PASS must be a BCRYPT HASH
-			{$BASIC_AUTH_USER} {$BASIC_AUTH_PASS}
-		}
+        # -------------------------
+        # Backoffice Service (OPEN)
+        # -------------------------
 
-		reverse_proxy {
-			dynamic a {
-				name {$FRONTEND_DOMAIN}
-				port {$FRONTEND_PORT}
-				refresh 1s
-				dial_timeout 30s
-				versions ipv4 ipv6
-			}
-			import lb_settings
-			import passive_health_checks
-			header_up Host {upstream_hostport}
-		}
-	}
+        # /backoffice/*
+        handle /backoffice {
+            reverse_proxy {
+                dynamic a {
+                    name {$BACKOFFICE_SERVICE_DOMAIN}
+                    port {$BACKOFFICE_SERVICE_PORT}
+                    refresh 1s
+                    dial_timeout 30s
+                    versions ipv4 ipv6
+                }
+                import lb_settings
+                import passive_health_checks
+                header_up Host {upstream_hostport}
+            }
+        }
+
+        # -------------------------
+        # Meta Service (OPEN)
+        # -------------------------
+
+        # /meta/*
+        handle /meta {
+            reverse_proxy {
+                dynamic a {
+                    name {$META_SERVICE_DOMAIN}
+                    port {$META_SERVICE_PORT}
+                    refresh 1s
+                    dial_timeout 30s
+                    versions ipv4 ipv6
+                }
+                import lb_settings
+                import passive_health_checks
+                header_up Host {upstream_hostport}
+            }
+        }
+
+        # -------------------------
+        # Identity Service (OPEN)
+        # -------------------------
+
+        # /identity/*
+        handle /identity {
+            reverse_proxy {
+                dynamic a {
+                    name {$IDENTITY_SERVICE_DOMAIN}
+                    port {$IDENTITY_SERVICE_PORT}
+                    refresh 1s
+                    dial_timeout 30s
+                    versions ipv4 ipv6
+                }
+                import lb_settings
+                import passive_health_checks
+                header_up Host {upstream_hostport}
+            }
+        }
+
+        # -------------------------
+        # Crash Oracle-Base (OPEN)
+        # -------------------------
+
+        # /crash-base/*
+        handle /crash-base {
+            reverse_proxy {
+                dynamic a {
+                    name {$CRASH_ORACLE_BASE_DOMAIN}
+                    port {$CRASH_ORACLE_BASE_PORT}
+                    refresh 1s
+                    dial_timeout 30s
+                    versions ipv4 ipv6
+                }
+                import lb_settings
+                import passive_health_checks
+                header_up Host {upstream_hostport}
+            }
+        }
+
+        # -------------------------
+        # Crash Oracle-BSC (OPEN)
+        # -------------------------
+
+        # /crash-bsc/*
+        handle /crash-bsc {
+            reverse_proxy {
+                dynamic a {
+                    name {$CRASH_ORACLE_BSC_DOMAIN}
+                    port {$CRASH_ORACLE_BSC_PORT}
+                    refresh 1s
+                    dial_timeout 30s
+                    versions ipv4 ipv6
+                }
+                import lb_settings
+                import passive_health_checks
+                header_up Host {upstream_hostport}
+            }
+        }
+
+        # -------------------------
+        # Crash Oracle-Pulsechain (OPEN)
+        # -------------------------
+
+        # /crash-pulsechain/*
+        handle /crash-pulsechain {
+            reverse_proxy {
+                dynamic a {
+                    name {$CRASH_ORACLE_PULSECHAIN_DOMAIN}
+                    port {$CRASH_ORACLE_PULSECHAIN_PORT}
+                    refresh 1s
+                    dial_timeout 30s
+                    versions ipv4 ipv6
+                }
+                import lb_settings
+                import passive_health_checks
+                header_up Host {upstream_hostport}
+            }
+        }
+    }
 }
