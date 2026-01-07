@@ -48,7 +48,7 @@
         # -------------------------
 
         # /backoffice/*
-        handle /backoffice {
+        handle /backoffice* {
             reverse_proxy {
                 dynamic a {
                     name {$BACKOFFICE_SERVICE_DOMAIN}
@@ -68,7 +68,7 @@
         # -------------------------
 
         # /meta/*
-        handle /meta {
+        handle /meta* {
             reverse_proxy {
                 dynamic a {
                     name {$META_SERVICE_DOMAIN}
@@ -88,7 +88,7 @@
         # -------------------------
 
         # /identity/*
-        handle /identity {
+        handle /identity* {
             reverse_proxy {
                 dynamic a {
                     name {$IDENTITY_SERVICE_DOMAIN}
@@ -108,7 +108,7 @@
         # -------------------------
 
         # /crash-base/*
-        handle /crash-base {
+        handle /crash-base* {
             reverse_proxy {
                 dynamic a {
                     name {$CRASH_ORACLE_BASE_DOMAIN}
@@ -128,7 +128,7 @@
         # -------------------------
 
         # /crash-bsc/*
-        handle /crash-bsc {
+        handle /crash-bsc* {
             reverse_proxy {
                 dynamic a {
                     name {$CRASH_ORACLE_BSC_DOMAIN}
@@ -148,7 +148,7 @@
         # -------------------------
 
         # /crash-pulsechain/*
-        handle /crash-pulsechain {
+        handle /crash-pulsechain* {
             reverse_proxy {
                 dynamic a {
                     name {$CRASH_ORACLE_PULSECHAIN_DOMAIN}
@@ -161,6 +161,11 @@
                 import passive_health_checks
                 header_up Host {upstream_hostport}
             }
+        }
+
+        handle {
+            # catch all remaining requests
+            respond "Not found" 404
         }
     }
 }
