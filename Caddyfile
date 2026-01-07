@@ -3,6 +3,7 @@
 # ---------------------------------------------------------
 
 {
+    # debug
     admin off
     persist_config off
     auto_https off
