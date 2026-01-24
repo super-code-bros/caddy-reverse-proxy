@@ -58,15 +58,9 @@
 		}
 	}
 
-	# --- RULE 2: Frontend SPA (Protected) ---
+	# --- RULE 2: Frontend SPA ---
 	# Catch-all for everything else (/, index.html, .js, .css).
-	# REQUIRES Basic Auth (password).
 	handle {
-		basicauth {
-			# Remember: variable BASIC_AUTH_PASS must be a BCRYPT HASH
-			{$BASIC_AUTH_USER} {$BASIC_AUTH_PASS}
-		}
-
 		reverse_proxy {
 			dynamic a {
 				name {$FRONTEND_DOMAIN}
