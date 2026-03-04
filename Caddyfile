@@ -77,21 +77,9 @@
 		}
 	}
 
-	# --- RULE 3: Frontend SPA ---
-	# Catch-all for everything else (/, index.html, .js, .css).
+	# --- Catch-all: 404 ---
 	# Future: replace with landing page service.
 	handle {
-		reverse_proxy {
-			dynamic a {
-				name {$FRONTEND_DOMAIN}
-				port {$FRONTEND_PORT}
-				refresh 1s
-				dial_timeout 30s
-				versions ipv4 ipv6
-			}
-			import lb_settings
-			import passive_health_checks
-			header_up Host {upstream_hostport}
-		}
+		respond "Not Found" 404
 	}
 }
