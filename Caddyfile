@@ -62,6 +62,9 @@
 	# Each mini app is a static SPA served under its own subpath.
 	# Add new mini apps by copying this block with a different path/env var pair.
 	# Requires EXPORT_KEYS_DOMAIN + EXPORT_KEYS_PORT env vars.
+	handle /export-keys {
+		redir /export-keys/ permanent
+	}
 	handle_path /export-keys/* {
 		reverse_proxy {
 			dynamic a {
