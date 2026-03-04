@@ -78,6 +78,24 @@
 		}
 	}
 
+	# --- RULE 3: Admin Dashboard ---
+	# Requires ADMIN_DOMAIN + ADMIN_PORT env vars.
+	redir /admin /admin/ permanent
+	handle_path /admin/* {
+		reverse_proxy {
+			dynamic a {
+				name {$ADMIN_DOMAIN}
+				port {$ADMIN_PORT:3000}
+				refresh 1s
+				dial_timeout 30s
+				versions ipv4 ipv6
+			}
+			import lb_settings
+			import passive_health_checks
+			header_up Host {upstream_hostport}
+		}
+	}
+
 	# --- Catch-all: 404 ---
 	# Future: replace with landing page service.
 	handle {
