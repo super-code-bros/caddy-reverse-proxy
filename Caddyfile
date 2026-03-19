@@ -40,31 +40,9 @@
 		format json
 	}
 
-	# --- RULE 0: MCP endpoint (sticky sessions) ---
-	# MCP requires session affinity: init → tool calls must hit the same instance.
-	# Uses cookie-based stickiness so the Mcp-Session-Id maps to one backend.
-	# All other /api/* routes remain round-robin for horizontal scaling.
-	handle_path {$BACKEND_PATH:/api}/mcp {
-		reverse_proxy {
-			dynamic a {
-				name {$BACKEND_DOMAIN}
-				port {$BACKEND_PORT}
-				refresh 1s
-				dial_timeout 30s
-				versions ipv4 ipv6
-			}
-			lb_policy cookie {
-				name _mcp_backend
-				ttl 300s
-			}
-			import passive_health_checks
-			header_up Host {upstream_hostport}
-		}
-	}
-
 	# --- RULE 1: API (Unprotected) ---
 	# Any request starting with /api/ goes straight to the backend.
-	# NO Basic Auth here. Round-robin for horizontal scaling.
+	# NO Basic Auth here.
 	handle_path {$BACKEND_PATH:/api}/* {
 		reverse_proxy {
 			dynamic a {
