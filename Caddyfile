@@ -44,7 +44,9 @@
 	# MCP protocol requires session affinity: init + tool calls must hit
 	# the same backend instance. Cookie-based stickiness pins the client.
 	# All other /api/* routes remain round-robin for horizontal scaling.
-	handle_path {$BACKEND_PATH:/api}/mcp* {
+	# Uses handle (not handle_path) to strip only /api, keeping /mcp for Hono.
+	handle {$BACKEND_PATH:/api}/mcp* {
+		uri strip_prefix {$BACKEND_PATH:/api}
 		reverse_proxy {
 			dynamic a {
 				name {$BACKEND_DOMAIN}
